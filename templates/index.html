@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>XRPL DEX Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="6" fill="#00c896" opacity="0.2"/>
+        <circle cx="16" cy="16" r="3" fill="#00c896" opacity="0.5"/>
+        <circle cx="16" cy="16" r="1.5" fill="#00c896"/>
+        <circle cx="8" cy="10" r="1.5" fill="#00c896" opacity="0.6"/>
+        <circle cx="24" cy="10" r="1.5" fill="#00c896" opacity="0.6"/>
+        <circle cx="8" cy="22" r="1.5" fill="#00c896" opacity="0.4"/>
+        <circle cx="24" cy="22" r="1.5" fill="#00c896" opacity="0.4"/>
+        <circle cx="16" cy="6" r="1.5" fill="#00c896" opacity="0.5"/>
+        <circle cx="16" cy="26" r="1.5" fill="#00c896" opacity="0.3"/>
+      </svg>
+    </div>
+    <button class="topbar-btn" id="connectBtn">
+      <span class="btn-icon-sm">⬡</span> Connect
+    </button>
+    <button class="topbar-btn" id="pasteCABtn">
+      <span class="btn-icon-sm">⧉</span> Paste CA
+    </button>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="toggleSearch()">🔍</button>
+      <button class="icon-btn">👤</button>
+    </div>
+  </header>
+
+  <!-- SEARCH BAR (hidden by default) -->
+  <div class="search-bar" id="searchBar" style="display:none;">
+    <input type="text" id="searchInput" placeholder="Search tokens, wallets, txns..."
+           oninput="filterTokens()" />
+    <button onclick="toggleSearch()">✕</button>
+  </div>
+
+  <!-- LATEST LABEL + STATUS -->
+  <div class="section-header">
+    <span class="section-label">LATEST <span class="arrow">↓</span></span>
+    <div class="status-bar">
+      <span class="ping-dot">▐</span>
+      <span class="ping-val" id="pingVal">--</span>ms
+      <span class="online-dot">●</span>
+      <span class="online-txt">Online</span>
+    </div>
+  </div>
+
+  <!-- FEATURED CARD (swipeable) -->
+  <div class="featured-wrapper">
+    <div class="featured-slider" id="featuredSlider">
+      <div class="feat-loading">Loading...</div>
+    </div>
+    <div class="feat-nav">
+      <button class="feat-nav-btn" onclick="slideFeat(-1)">‹</button>
+      <div class="feat-dots" id="featDots"></div>
+      <button class="feat-nav-btn" onclick="slideFeat(1)">›</button>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="switchTab('latest', this)">⊞</button>
+    <button class="filter-btn" onclick="switchTab('trending', this)">☰</button>
+    <button class="filter-pill active">⏱ 24h</button>
+    <button class="filter-pill">🐸 Memes</button>
+    <button class="filter-pill">🏷</button>
+    <button class="filter-pill">🛒 0 ✕</button>
+    <button class="filter-pill">⚙</button>
+  </div>
+
+  <!-- TOKEN LIST HEADER -->
+  <div class="list-header">
+    <span>Pair</span>
+    <span>Market Cap</span>
+  </div>
+
+  <!-- TOKEN LIST -->
+  <div class="token-list" id="tokenList">
+    <div class="list-loading">Loading tokens...</div>
+  </div>
+
+  <!-- ATTRIBUTION -->
+  <div class="attribution">Data by <a href="https://xrpl.to" target="_blank">xrpl.to</a></div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="bnav-item active">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">Home</span>
+    </div>
+    <div class="bnav-item">
+      <span class="bnav-icon">☆</span>
+      <span class="bnav-label">Watchlist</span>
+    </div>
+    <div class="bnav-item bnav-center">
+      <div class="bnav-trade-btn">⇄</div>
+      <span class="bnav-label">Trade</span>
+    </div>
+    <div class="bnav-item">
+      <span class="bnav-icon">⇌</span>
+      <span class="bnav-label">Swap</span>
+    </div>
+    <div class="bnav-item">
+      <span class="bnav-icon">👛</span>
+      <span class="bnav-label">Wallets</span>
+    </div>
+  </nav>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
