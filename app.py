@@ -16,7 +16,8 @@ def get_tokens(sort="volume_24h", start=0, limit=20):
                 "limit": limit,
                 "offset": start,
                 "sort_by": sort,
-                "sort_order": "desc"
+                "sort_order": "desc",
+                "include_changes": "true"
             },
             headers=HEADERS,
             timeout=8
@@ -31,29 +32,62 @@ def get_tokens(sort="volume_24h", start=0, limit=20):
                 meta = t.get("meta", {})
                 token_meta = meta.get("token", {})
                 metrics = t.get("metrics", {})
+                changes = metrics.get("changes", {})
+                change_24h = changes.get("24h", {})
+                change_7d = changes.get("7d", {})
 
                 def safe_float(val):
                     try:
                         v = float(val or 0)
-                        return v if v < 1e15 else 0
+                        return v if abs(v) < 1e15 else 0
                     except:
                         return 0
+
+                # 24h price change percent
+                pro24h = safe_float(
+                    change_24h.get("price", {}).get("percent", 0)
+                )
+
+                # 7d price change percent for sparkline approximation
+                pro7d = safe_float(
+                    change_7d.get("price", {}).get("percent", 0)
+                )
+
+                # Build a simple sparkline from current price + changes
+                price = safe_float(metrics.get("price"))
+                sparkline = []
+                if price > 0:
+                    # Approximate 8 data points using 7d and 24h change
+                    price_7d_ago = price / (1 + pro7d / 100) if pro7d != -100 else price
+                    price_24h_ago = price / (1 + pro24h / 100) if pro24h != -100 else price
+                    # Interpolate: 7d ago -> 24h ago -> now
+                    for i in range(6):
+                        sparkline.append(price_7d_ago + (price_24h_ago - price_7d_ago) * i / 5)
+                    sparkline.append(price_24h_ago)
+                    sparkline.append(price)
+
+                # Get icon — check both token and issuer meta
+                icon = token_meta.get("icon", "") or \
+                       meta.get("issuer", {}).get("icon", "")
 
                 tokens.append({
                     "currency": t.get("currency", ""),
                     "issuer": t.get("issuer", ""),
-                    "name": token_meta.get("name", ""),
-                    "icon": token_meta.get("icon", ""),
-                    "exch": safe_float(metrics.get("price")),
+                    "name": token_meta.get("name", "") or
+                            meta.get("issuer", {}).get("name", ""),
+                    "icon": icon,
+                    "exch": price,
                     "marketcap": safe_float(metrics.get("marketcap")),
                     "tvl": safe_float(metrics.get("marketcap")),
                     "vol24hxrp": safe_float(metrics.get("volume_24h")),
                     "vol7dxrp": safe_float(metrics.get("volume_7d")),
-                    "pro24h": 0,
+                    "pro24h": pro24h,
+                    "pro7d": pro7d,
                     "txns24h": int(metrics.get("exchanges_24h") or 0),
                     "trustlines": int(metrics.get("trustlines") or 0),
                     "holders": int(metrics.get("holders") or 0),
                     "dateon": 0,
+                    "sparkline": sparkline,
                     "md5": None,
                     "ext": None,
                 })
@@ -92,6 +126,21 @@ def sparkline(token_id):
     return jsonify([])
 
 
+@app.route("/api/test")
+def test():
+    try:
+        res = requests.get(
+            "https://s1.xrplmeta.org/v2/tokens",
+            params={"limit": 3, "sort_by": "volume_24h",
+                    "sort_order": "desc", "include_changes": "true"},
+            headers=HEADERS,
+            timeout=8
+        )
+        return jsonify({"status": res.status_code, "data": res.json()})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
 @app.route("/api/image")
 def image_proxy():
     url = request.args.get("url", "")
@@ -115,18 +164,6 @@ def image_proxy():
         print(f"Image proxy error: {e}")
         return '', 404
 
-@app.route("/api/test")
-def test():
-    try:
-        res = requests.get(
-            "https://s1.xrplmeta.org/v2/tokens",
-            params={"limit": 3, "sort_by": "volume_24h", "sort_order": "desc"},
-            headers=HEADERS,
-            timeout=8
-        )
-        return jsonify({"status": res.status_code, "data": res.json()})
-    except Exception as e:
-        return jsonify({"error": str(e)})
 
 if __name__ == "__main__":
     app.run(debug=True)

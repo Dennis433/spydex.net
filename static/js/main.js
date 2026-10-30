@@ -55,14 +55,6 @@ function drawSparkline(canvas, prices, isUp) {
   ctx.stroke();
 }
 
-async function fetchSparkline(md5) {
-  try {
-    const res = await fetch(`/api/sparkline/${md5}`);
-    const data = await res.json();
-    return Array.isArray(data) ? data : (data.data || data.sparkline || []);
-  } catch { return []; }
-}
-
 // Ping
 let pingStart = Date.now();
 setInterval(() => {
@@ -117,9 +109,9 @@ function renderFeatured(tokens) {
     const icon = tokenIcon(t);
     const change = t.pro24h;
     const changeClass = (change >= 0) ? 'up' : 'down';
-    const changeStr = change != null
+    const changeStr = change != null && change !== 0
       ? (change >= 0 ? '+' : '') + parseFloat(change).toFixed(2) + '%'
-      : '—';
+      : '+0.00%';
     const ageTxt = age(t.dateon);
 
     return `
@@ -169,12 +161,13 @@ function renderFeatured(tokens) {
     `<div class="feat-dot ${i === 0 ? 'active' : ''}" onclick="goFeat(${i})"></div>`
   ).join('');
 
-  items.forEach(async (t, i) => {
-    if (!t.md5) return;
-    const prices = await fetchSparkline(t.md5);
-    const canvas = document.getElementById(`feat-canvas-${i}`);
-    if (canvas) drawSparkline(canvas, prices, (t.pro24h || 0) >= 0);
-  });
+  // Draw sparklines from inline data
+  setTimeout(() => {
+    items.forEach((t, i) => {
+      const canvas = document.getElementById(`feat-canvas-${i}`);
+      if (canvas) drawSparkline(canvas, t.sparkline || [], (t.pro24h || 0) >= 0);
+    });
+  }, 50);
 }
 
 function goFeat(index) {
@@ -195,9 +188,9 @@ function buildRow(t, globalIndex) {
   const icon = tokenIcon(t);
   const change = t.pro24h;
   const changeClass = (change >= 0) ? 'up' : 'down';
-  const changeStr = change != null
+  const changeStr = change != null && change !== 0
     ? (change >= 0 ? '+' : '') + parseFloat(change).toFixed(2) + '%'
-    : '—';
+    : '+0.00%';
 
   return `
     <div class="token-row" data-index="${globalIndex}">
@@ -248,13 +241,15 @@ function renderList(tokens, replace = false) {
     tokens.map((t, i) => buildRow(t, startIndex + i)).join('')
   );
 
-  tokens.forEach(async (t, i) => {
-    if (!t.md5) return;
-    const prices = await fetchSparkline(t.md5);
-    const canvas = document.getElementById(`list-spark-${startIndex + i}`);
-    if (canvas) drawSparkline(canvas, prices, (t.pro24h || 0) >= 0);
-  });
+  // Draw sparklines from inline data
+  setTimeout(() => {
+    tokens.forEach((t, i) => {
+      const canvas = document.getElementById(`list-spark-${startIndex + i}`);
+      if (canvas) drawSparkline(canvas, t.sparkline || [], (t.pro24h || 0) >= 0);
+    });
+  }, 50);
 
+  // Spinner or end message
   if (hasMore) {
     list.insertAdjacentHTML('beforeend', `
       <div id="scroll-spinner" class="scroll-spinner">
