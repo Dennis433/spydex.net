@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Users - Admin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 220px;
+      height: 100vh;
+      background: #0d0d0d;
+      border-right: 1px solid #1a1a1a;
+      padding: 24px 0;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid #1a1a1a;
+      margin-bottom: 16px;
+    }
+    .sidebar-logo-text { font-size: 16px; font-weight: 800; color: #00c896; }
+    .sidebar-logo-sub { font-size: 10px; color: #444; margin-top: 2px; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: #666;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .nav-item:hover { background: #111; color: #ccc; }
+    .nav-item.active { color: #00c896; background: #0f1f1a; }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-divider { border-top: 1px solid #1a1a1a; margin: 12px 0; }
+    .main { margin-left: 220px; padding: 28px; }
+    .page-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .page-sub { font-size: 12px; color: #444; margin-bottom: 28px; }
+    .card {
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ccc;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .total-badge {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 3px 12px;
+      font-size: 11px;
+      color: #666;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-size: 10px;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 8px 12px;
+      border-bottom: 1px solid #151515;
+    }
+    td {
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #999;
+      border-bottom: 1px solid #0f0f0f;
+    }
+    tr:hover td { background: #0f0f0f; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-desktop { background: #0f2a4a; color: #4a9eff; }
+    .badge-mobile { background: #1a2a0f; color: #00c896; }
+    .badge-tablet { background: #2a1a0f; color: #f0a500; }
+    .pagination {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .page-btn {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      color: #888;
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .page-btn.active { background: #00c896; color: #000; border-color: #00c896; }
+    .page-btn:hover:not(.active) { border-color: #444; color: #ccc; }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      color: #e05252;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+    }
+    .logout-btn:hover { background: #1a0f0f; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">⬡ XRPL Admin</div>
+      <div class="sidebar-logo-sub">DEX Tracker Dashboard</div>
+    </div>
+    <a href="/admin/dashboard" class="nav-item">
+      <span class="nav-icon">📊</span> Dashboard
+    </a>
+    <a href="/admin/users" class="nav-item active">
+      <span class="nav-icon">👥</span> All Users
+    </a>
+    <div class="nav-divider"></div>
+    <a href="/" class="nav-item">
+      <span class="nav-icon">🌐</span> View Site
+    </a>
+    <a href="/admin/logout" class="logout-btn">
+      <span>⎋</span> Logout
+    </a>
+  </div>
+
+  <div class="main">
+    <div class="page-title">All Users</div>
+    <div class="page-sub">Every unique visitor tracked by IP</div>
+
+    <div class="card">
+      <div class="card-title">
+        Users
+        <span class="total-badge">{{ users.total }} total</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>IP Address</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>Device</th>
+            <th>Browser</th>
+            <th>Visits</th>
+            <th>First Seen</th>
+            <th>Last Seen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users.items %}
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.ip }}</td>
+            <td>{{ user.country or '—' }}</td>
+            <td>{{ user.city or '—' }}</td>
+            <td>
+              <span class="badge badge-{{ user.device|lower }}">
+                {{ user.device }}
+              </span>
+            </td>
+            <td>{{ user.browser }}</td>
+            <td>{{ user.visit_count }}</td>
+            <td>{{ user.first_seen.strftime('%b %d %Y, %H:%M') }}</td>
+            <td>{{ user.last_seen.strftime('%b %d %Y, %H:%M') }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center; color:#333; padding:30px;">
+              No users yet
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- PAGINATION -->
+      {% if users.pages > 1 %}
+      <div class="pagination">
+        {% if users.has_prev %}
+        <a href="?page={{ users.prev_num }}" class="page-btn">← Prev</a>
+        {% endif %}
+        {% for p in users.iter_pages() %}
+          {% if p %}
+          <a href="?page={{ p }}"
+             class="page-btn {% if p == users.page %}active{% endif %}">{{ p }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if users.has_next %}
+        <a href="?page={{ users.next_num }}" class="page-btn">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

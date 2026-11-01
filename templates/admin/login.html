@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-box {
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 14px;
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .login-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .login-logo svg { width: 48px; height: 48px; }
+    .login-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      font-size: 12px;
+      color: #555;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    input[type="password"] {
+      width: 100%;
+      background: #161616;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    input[type="password"]:focus { border-color: #00c896; }
+    .btn {
+      width: 100%;
+      background: #00c896;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      color: #000;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn:hover { background: #00b386; }
+    .error {
+      background: #2a1010;
+      border: 1px solid #e05252;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #e05252;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="22" fill="none" stroke="#00c896" stroke-width="2"/>
+        <circle cx="24" cy="24" r="10" fill="#00c896" opacity="0.2"/>
+        <circle cx="24" cy="24" r="4" fill="#00c896"/>
+      </svg>
+    </div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-sub">XRPL DEX Tracker</div>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter admin password" autofocus/>
+      </div>
+      <button type="submit" class="btn">Login →</button>
+    </form>
+  </div>
+</body>
+</html>
